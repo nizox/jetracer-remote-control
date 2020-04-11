@@ -1,0 +1,12 @@
+[package]
+name = "jetracer-controller"
+version = "0.1.0"
+authors = ["Nicolas Vivet <nicolas@nzx.io>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+linux-embedded-hal = "^0.3.0"
+pwm-pca9685 = "^0.2.0"
+actix = "0.10.0-alpha.1"
