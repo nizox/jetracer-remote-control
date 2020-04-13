@@ -217,6 +217,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-hal-mock"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d22e3e0ab5455a3eb25072d53fe6c00e359282bd660ab58ec7d5541a68fa8b4e"
+dependencies = [
+ "embedded-hal",
+ "nb",
+]
+
+[[package]]
 name = "enum-as-inner"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -412,6 +422,8 @@ name = "jetracer-controller"
 version = "0.1.0"
 dependencies = [
  "actix",
+ "embedded-hal",
+ "embedded-hal-mock",
  "linux-embedded-hal",
  "pwm-pca9685",
 ]

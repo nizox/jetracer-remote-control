@@ -1,6 +1,5 @@
 extern crate actix;
-extern crate linux_embedded_hal as hal;
-extern crate pwm_pca9685 as pca9685;
+extern crate linux_embedded_hal as linux_hal;
 
 use actix::prelude::*;
 
@@ -9,9 +8,8 @@ mod ecu;
 fn main() {
     let system = System::new("test");
 
-    let dev = hal::I2cdev::new("/dev/i2c-1").unwrap();
-    let slave = pca9685::SlaveAddr::default();
-    let addr = ecu::ECU{pwm: pca9685::Pca9685::new(dev, slave)}.start();
+    let dev = linux_hal::I2cdev::new("/dev/i2c-1").unwrap();
+    let addr = ecu::ECU::new_from_device(dev).start();
 
     Arbiter::spawn(async {
         std::thread::spawn(move || loop {
