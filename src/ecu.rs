@@ -3,23 +3,20 @@ extern crate pwm_pca9685 as pca9685;
 
 use actix::prelude::*;
 
-pub struct ECU<I2C> {
-    pwm: pca9685::Pca9685<I2C>,
+pub struct ECU<D> {
+    pwm: pca9685::Pca9685<D>,
 }
 
-
-impl<I2C, E> ECU<I2C> where I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E> + std::marker::Unpin + 'static, E: std::fmt::Debug
+impl<D, E> ECU<D> where D: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E> + std::marker::Unpin + 'static, E: std::fmt::Debug
 {
-    pub fn new_from_device(dev: I2C) -> ECU<I2C> {
+    pub fn new_from_device(dev: D) -> ECU<D> {
         let slave = pca9685::SlaveAddr::default();
         ECU{pwm: pca9685::Pca9685::new(dev, slave)}
     }
 
 }
 
-pub struct Command(pub String);
-
-impl<I2C, E> Actor for ECU<I2C> where I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E> + std::marker::Unpin + 'static, E: std::fmt::Debug
+impl<D, E> Actor for ECU<D> where D: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E> + std::marker::Unpin + 'static, E: std::fmt::Debug
 {
     type Context = Context<Self>;
 
@@ -36,11 +33,13 @@ impl<I2C, E> Actor for ECU<I2C> where I2C: hal::blocking::i2c::Write<Error = E> 
     }
 }
 
+pub struct Command(pub String);
+
 impl Message for Command {
     type Result = ();
 }
 
-impl<I2C, E> Handler<Command> for ECU<I2C> where I2C: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E> + std::marker::Unpin + 'static, E: std::fmt::Debug
+impl<D, E> Handler<Command> for ECU<D> where D: hal::blocking::i2c::Write<Error = E> + hal::blocking::i2c::WriteRead<Error = E> + std::marker::Unpin + 'static, E: std::fmt::Debug
 {
     type Result = ();
 
@@ -61,11 +60,13 @@ mod tests {
     #[test]
     fn test_started() {
          let expectations = [
-             Transaction::write(0xaa, vec![1, 2]),
-             Transaction::read(0xbb, vec![3, 4]),
+             Transaction::write(0x40, vec![254, 100]),
+             Transaction::write(0x40, vec![0, 49]),
+             Transaction::write(0x40, vec![6, 0, 0]),
+             Transaction::write(0x40, vec![12, 255, 7]),
          ];
 
-         System::run(move || {
+         System::builder().stop_on_panic(true).run(move || {
              let mock_dev = Mock::new(&expectations);
              let actor = ECU::new_from_device(mock_dev);
              actor.start();

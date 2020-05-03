@@ -1,0 +1,32 @@
+<html>
+    <head>
+    <title>JetRacer Remote Control</title>
+    <script type="text/javascript">
+        var websocketConnection;
+
+        function onServerMessage(event) {
+            console.log(event);
+        }
+
+        function onTick() {
+            if (websocketConnection == undefined || websocketConnection.readyState != 1) {
+                return;
+            }
+            websocketConnection.send(document.control.throttle.value);
+        }
+
+        window.onload = function() {
+            websocketConnection = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/ws/");
+            websocketConnection.addEventListener("message", onServerMessage);
+            setInterval(onTick, 100);  // tick every 100ms
+        };
+
+
+    </script>
+    </head>
+    <body>
+        <form name="control">
+            <input type="range" min="0" max="100" value="0" id="throttle">
+        </form>
+    </body>
+</html>
